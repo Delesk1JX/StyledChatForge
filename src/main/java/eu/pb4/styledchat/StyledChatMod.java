@@ -1,5 +1,6 @@
 package eu.pb4.styledchat;
 
+import java.util.List;
 import eu.pb4.loader.Platform;
 import eu.pb4.placeholders.api.Placeholders;
 import eu.pb4.playerdata.api.PlayerDataApi;
@@ -23,6 +24,14 @@ import org.apache.logging.log4j.Logger;
 public class StyledChatMod {
    public static final Logger LOGGER = LogManager.getLogger("Styled Chat");
    public static final String MOD_ID = "styledchatforge";
+
+   /**
+    * Shown as the contributor list in {@code /about} and {@code /server brand}. Forge's
+    * {@code IModInfo} does not expose the authors field, so this cannot be read back from the
+    * metadata; keep it in step with {@code mod_authors} in gradle.properties.
+    */
+   public static final List<String> CONTRIBUTORS = List.of("Patbox (original author)", "Delesk1JX (Forge port)");
+
    public static MinecraftServer server = null;
    public static boolean USE_FABRIC_API = true;
    public static ResourceKey<ChatType> MESSAGE_TYPE_ID = ResourceKey.create(Registries.CHAT_TYPE, new ResourceLocation("styled_chat", "generic_hack"));

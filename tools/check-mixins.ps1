@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Continue'
 $jar = "$env:USERPROFILE\.gradle\caches\forge_gradle\minecraft_user_repo\net\minecraftforge\forge\1.20.1-47.4.10_mapped_official_1.20.1\forge-1.20.1-47.4.10_mapped_official_1.20.1.jar"
 $javap = "C:\Program Files\Java\jdk-21.0.11\bin\javap.exe"
-$root = "C:\Users\Alex\Downloads\MODDING\StyledChatForge\src\main\java"
+$root = Join-Path (Split-Path -Parent $PSScriptRoot) 'src\main\java'
 
 $cache = @{}
 $problems = @()

@@ -98,8 +98,7 @@ public class GenericModInfo {
          plainIcon.add(Component.empty());
          plainIcon.add(Component.literal(info.description()));
 
-         ArrayList<String> contributors = new ArrayList<>(List.of("Patbox (original author)"));
-         contributors.addAll(List.of("Alex (Forge port)"));
+         ArrayList<String> contributors = new ArrayList<>(StyledChatMod.CONTRIBUTORS);
 
          about.add(Component.literal("")
                .append(Component.literal("Contributors")

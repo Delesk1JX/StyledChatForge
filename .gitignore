@@ -1,0 +1,35 @@
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Dev runs
+run/
+run-data/
+runs/
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.eclipse/
+.classpath
+.project
+.settings/
+bin/
+out/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Never commit CurseForge / Modrinth tokens
+*.token
+.env
+
+# Porting scratch: regenerable binaries and generated mapping files.
+# The mapping files are derived from Mojang's client_mappings.txt, which is not
+# redistributable, so they stay out of the repository.
+tools/*.jar
+tools/*.tiny

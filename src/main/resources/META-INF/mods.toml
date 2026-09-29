@@ -1,0 +1,42 @@
+modLoader = "javafml"
+loaderVersion = "${forge_version_range}"
+license = "${mod_license}"
+issueTrackerURL = "${issues_url}"
+
+[[mods]]
+modId = "${mod_id}"
+version = "${mod_version}"
+displayName = "${mod_name}"
+authors = "${mod_authors}"
+logoFile = "assets/${mod_id}/icon.png"
+description = '''
+${mod_description}
+'''
+
+# Chat styles are applied server side, so a vanilla client can join and simply sees the fallback
+# formatting. Declaring this keeps such clients from being rejected with a missing-mod screen.
+displayTest = "MATCH_VERSION"
+
+[[dependencies.${mod_id}]]
+    modId = "forge"
+    mandatory = true
+    versionRange = "${forge_version_range}"
+    ordering = "NONE"
+    side = "BOTH"
+
+[[dependencies.${mod_id}]]
+    modId = "minecraft"
+    mandatory = true
+    versionRange = "${minecraft_version_range}"
+    ordering = "NONE"
+    side = "BOTH"
+
+# The Placeholder, Predicate and Player Data APIs are bundled rather than declared as
+# dependencies: there is no Forge release of them, so they ship inside this jar under their own
+# LGPL-3.0 licence (copied to META-INF/).
+
+[[mixins]]
+config = "styledchatforge.mixins.json"
+
+[[mixins]]
+config = "playerdataapi.mixins.json"

@@ -1,0 +1,218 @@
+plugins {
+    id 'eclipse'
+    id 'idea'
+    id 'maven-publish'
+    id 'net.minecraftforge.gradle' version '[6.0.24,6.2)'
+    id 'org.spongepowered.mixin'
+    id 'me.modmuss50.mod-publish-plugin' version '2.2.1'
+}
+
+version = "${mod_version}+${minecraft_version}"
+group = mod_group_id
+
+base {
+    archivesName = mod_id
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(17)
+    withSourcesJar()
+    withJavadocJar()
+}
+
+minecraft {
+    mappings channel: mapping_channel, version: mapping_version
+
+    copyIdeResources = true
+
+    runs {
+        configureEach {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', ''
+            property 'forge.logging.console.level', 'info'
+            property 'mixin.debug.export', 'true'
+
+            mods {
+                "${mod_id}" {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        client {
+            property 'forge.enabledGameTestNamespaces', mod_id
+        }
+
+        server {
+            property 'forge.enabledGameTestNamespaces', mod_id
+            args '--nogui'
+        }
+
+        data {
+            workingDirectory project.file('run-data')
+            args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+
+    // The Placeholder / Predicate / Player Data APIs are bundled from source (there is no Forge
+    // release of them), so there are no external mod dependencies to declare.
+    annotationProcessor "org.spongepowered:mixin:${mixin_version}:processor"
+
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test', Test).configure {
+    useJUnitPlatform()
+    testLogging {
+        events 'passed', 'failed', 'skipped'
+        exceptionFormat = 'full'
+    }
+}
+
+// Forge runs Minecraft under SRG names, so mixin targets written against official Mojang mappings
+// have to be remapped at build time. This registers the Mixin annotation processor and the task
+// that turns its output into ${mod_id}.refmap.json.
+mixin {
+    add sourceSets.main, "${mod_id}.refmap.json"
+    config "${mod_id}.mixins.json"
+
+    // The bundled Player Data API contributes its own mixin set; both configs share one refmap.
+    config 'playerdataapi.mixins.json'
+}
+
+def refmapName = "${mod_id}.refmap.json"
+
+tasks.named('jar', Jar).configure {
+    doLast {
+        def file = archiveFile.get().asFile
+
+        if (!file.exists()) {
+            throw new GradleException("${file.name} was not produced")
+        }
+
+        def zip = new java.util.zip.ZipFile(file)
+        try {
+            if (zip.getEntry(refmapName) == null) {
+                throw new GradleException("${refmapName} is missing from ${file.name}; the mixins in it " +
+                        "cannot be applied. Try ./gradlew clean build.")
+            }
+        } finally {
+            zip.close()
+        }
+    }
+}
+
+tasks.named('processResources', ProcessResources).configure {
+    def replaceProperties = [
+            minecraft_version      : minecraft_version,
+            minecraft_version_range: "[${minecraft_version},1.21)",
+            forge_version           : forge_version,
+            forge_version_range     : "[47,)",
+            mod_id                  : mod_id,
+            mod_name                : mod_name,
+            mod_license             : mod_license,
+            mod_version             : mod_version,
+            mod_authors             : mod_authors,
+            mod_description         : mod_description,
+            issues_url              : project.issues_url,
+            project_url             : project.project_url,
+    ]
+
+    inputs.properties replaceProperties
+
+    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
+        expand replaceProperties
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 17
+}
+
+tasks.named('sourcesJar', Jar).configure {
+    // The LGPL asks for the complete corresponding source, so the licence and the attribution
+    // note travel with the sources as well.
+    from('LICENSE')
+    from('CREDITS.md')
+}
+
+tasks.withType(Javadoc).configureEach {
+    options.encoding = 'UTF-8'
+    options.addStringOption('Xdoclint:none', '-quiet')
+    failOnError = false
+}
+
+jar {
+    from('LICENSE') {
+        rename { "${it}_${mod_id}" }
+    }
+    // Ship the attribution note in the jar itself, next to the licences it refers to.
+    from('CREDITS.md') {
+        rename { "${it}_${mod_id}" }
+    }
+    // Keep the bundled API licences next to the one the port is released under.
+    from('LICENSES') {
+        into 'META-INF'
+    }
+}
+
+publishing {
+    publications {
+        register('mavenJava', MavenPublication) {
+            artifact(jar) { builtBy jar }
+            artifact(sourcesJar) { builtBy sourcesJar }
+        }
+    }
+    repositories {
+        maven {
+            name = 'localStaging'
+            url = layout.buildDirectory.dir('repo')
+        }
+    }
+}
+
+// ---------------------------------------------------------------- publishing --
+// Tokens are read from the environment so nothing secret is ever committed:
+//
+//   CURSEFORGE_API_TOKEN   -> https://www.curseforge.com/account/api-tokens
+//   MODRINTH_API_TOKEN     -> https://modrinth.com/settings/pats
+//   CHANGELOG              -> optional release notes
+//
+// Then:  ./gradlew build publishMods
+def changelog = System.getenv('CHANGELOG') ?: ''
+
+publishMods {
+    changelog = changelog
+    type = is_stable == 'true' && !mod_version.contains('-') ? STABLE : BETA
+    file = tasks.jar.archiveFile
+    modLoaders.add('forge')
+
+    if (System.getenv('CURSEFORGE_API_TOKEN') && project.curseforge_project_id) {
+        curseforge {
+            projectId = project.curseforge_project_id
+            accessToken = System.getenv('CURSEFORGE_API_TOKEN')
+            client = true
+            server = true
+            minecraftVersions.add(minecraft_version)
+        }
+    }
+
+    if (System.getenv('MODRINTH_API_TOKEN') && project.modrinth_project_id) {
+        modrinth {
+            projectId = project.modrinth_project_id
+            accessToken = System.getenv('MODRINTH_API_TOKEN')
+            minecraftVersions.add(minecraft_version)
+        }
+    }
+}

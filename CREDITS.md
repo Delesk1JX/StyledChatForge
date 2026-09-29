@@ -39,15 +39,28 @@ Loader-facing pieces were replaced rather than ported one-to-one:
 
 ## Bundled APIs
 
-There is no Forge release of the libraries the mod depends on, so their sources are built into this
-jar under their original package names:
+There is no Forge release of the libraries the mod builds on, so their sources are built into
+this jar:
 
+- **Predicate API** 0.1.2+1.20 — © Patbox — LGPL-3.0-only, under its original package
+  `eu.pb4.predicate`
+- **Player Data API** 0.2.2+1.19.3 — © Patbox — LGPL-3.0-only, under its original package
+  `eu.pb4.playerdata`
 - **Text Placeholder API** 2.1.4+1.20.1 — © Patbox — LGPL-3.0-only
-- **Predicate API** 0.1.2+1.20 — © Patbox — LGPL-3.0-only
-- **Player Data API** 0.2.2+1.19.3 — © Patbox — LGPL-3.0-only
 
-Their licence texts are copied to `META-INF/LICENSE_placeholder-api`,
-`META-INF/LICENSE_predicate-api` and `META-INF/LICENSE_player-data-api` inside the jar.
+The Placeholder API is the odd one out: a separate unofficial Forge port of it exists
+(`placeholderapi`, https://github.com/Delesk1JX/TextPlaceholderAPI-Forge). If Styled Chat
+shipped it under its original package, installing both mods would put the same classes in two
+jars, and JPMS refuses to let two modules export one package — the game dies before it starts
+with a `ResolutionException`. It is therefore vendored under
+`dev.delesk1jx.styledchat.vendor.placeholders`, which no other mod can collide with.
+
+The consequence is that the two mods install side by side: this one uses its own private copy,
+and a standalone Text Placeholder API mod is unaffected. Configuration is unaffected either way,
+because placeholder ids are data rather than package names.
+
+Licence texts for all three are copied into the jar as `META-INF/LICENSE_placeholder-api`,
+`META-INF/LICENSE_predicate-api` and `META-INF/LICENSE_player-data-api`.
 
 ## Licence
 

@@ -1,11 +1,11 @@
 package eu.pb4.styledchat.parser;
 
-import eu.pb4.placeholders.api.PlaceholderContext;
-import eu.pb4.placeholders.api.node.DirectTextNode;
-import eu.pb4.placeholders.api.node.LiteralNode;
-import eu.pb4.placeholders.api.node.TextNode;
-import eu.pb4.placeholders.api.node.parent.ParentTextNode;
-import eu.pb4.placeholders.api.parsers.NodeParser;
+import dev.delesk1jx.styledchat.vendor.placeholders.api.PlaceholderContext;
+import dev.delesk1jx.styledchat.vendor.placeholders.api.node.DirectTextNode;
+import dev.delesk1jx.styledchat.vendor.placeholders.api.node.LiteralNode;
+import dev.delesk1jx.styledchat.vendor.placeholders.api.node.TextNode;
+import dev.delesk1jx.styledchat.vendor.placeholders.api.node.parent.ParentTextNode;
+import dev.delesk1jx.styledchat.vendor.placeholders.api.parsers.NodeParser;
 import eu.pb4.styledchat.StyledChatMod;
 import java.lang.reflect.Method;
 import java.util.ArrayList;

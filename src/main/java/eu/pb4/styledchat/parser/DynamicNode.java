@@ -1,8 +1,8 @@
 package eu.pb4.styledchat.parser;
 
-import eu.pb4.placeholders.api.ParserContext;
-import eu.pb4.placeholders.api.ParserContext.Key;
-import eu.pb4.placeholders.api.node.TextNode;
+import dev.delesk1jx.styledchat.vendor.placeholders.api.ParserContext;
+import dev.delesk1jx.styledchat.vendor.placeholders.api.ParserContext.Key;
+import dev.delesk1jx.styledchat.vendor.placeholders.api.node.TextNode;
 import java.util.Map;
 import net.minecraft.network.chat.Component;
 

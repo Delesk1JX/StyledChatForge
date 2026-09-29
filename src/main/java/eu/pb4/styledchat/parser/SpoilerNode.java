@@ -1,10 +1,10 @@
 package eu.pb4.styledchat.parser;
 
-import eu.pb4.placeholders.api.ParserContext;
-import eu.pb4.placeholders.api.PlaceholderContext;
-import eu.pb4.placeholders.api.node.TextNode;
-import eu.pb4.placeholders.api.node.parent.ParentNode;
-import eu.pb4.placeholders.api.node.parent.ParentTextNode;
+import dev.delesk1jx.styledchat.vendor.placeholders.api.ParserContext;
+import dev.delesk1jx.styledchat.vendor.placeholders.api.PlaceholderContext;
+import dev.delesk1jx.styledchat.vendor.placeholders.api.node.TextNode;
+import dev.delesk1jx.styledchat.vendor.placeholders.api.node.parent.ParentNode;
+import dev.delesk1jx.styledchat.vendor.placeholders.api.node.parent.ParentTextNode;
 import eu.pb4.styledchat.config.Config;
 import eu.pb4.styledchat.config.ConfigManager;
 import java.util.Map;

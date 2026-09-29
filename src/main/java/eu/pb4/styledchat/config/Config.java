@@ -1,9 +1,9 @@
 package eu.pb4.styledchat.config;
 
-import eu.pb4.placeholders.api.PlaceholderContext;
-import eu.pb4.placeholders.api.node.TextNode;
-import eu.pb4.placeholders.api.parsers.TextParserV1;
-import eu.pb4.placeholders.api.parsers.TextParserV1.TextTag;
+import dev.delesk1jx.styledchat.vendor.placeholders.api.PlaceholderContext;
+import dev.delesk1jx.styledchat.vendor.placeholders.api.node.TextNode;
+import dev.delesk1jx.styledchat.vendor.placeholders.api.parsers.TextParserV1;
+import dev.delesk1jx.styledchat.vendor.placeholders.api.parsers.TextParserV1.TextTag;
 import eu.pb4.predicate.api.BuiltinPredicates;
 import eu.pb4.predicate.api.PredicateContext;
 import eu.pb4.styledchat.config.data.ChatStyleData;

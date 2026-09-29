@@ -1,7 +1,7 @@
 package eu.pb4.styledchat;
 
-import eu.pb4.placeholders.api.PlaceholderContext;
-import eu.pb4.placeholders.api.node.TextNode;
+import dev.delesk1jx.styledchat.vendor.placeholders.api.PlaceholderContext;
+import dev.delesk1jx.styledchat.vendor.placeholders.api.node.TextNode;
 import eu.pb4.styledchat.config.ConfigManager;
 import java.util.Map;
 import net.minecraft.world.entity.TamableAnimal;

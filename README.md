@@ -26,9 +26,11 @@ The original is Fabric-only. Forge servers get the same configuration format, th
 commands and the same placeholder/predicate syntax, so you can move an existing
 `styled-chat.json` across without editing it.
 
-The three libraries the mod builds on — Text Placeholder API, Predicate API and Player
-Data API — have no Forge release, so their sources are bundled into this jar under their
-original package names and LGPL-3.0 licences.
+The mod is **self-contained**: the Text Placeholder, Predicate and Player Data APIs have no
+Forge release, so their sources are built in. There is nothing extra to install. A standalone
+unofficial Forge port of the Text Placeholder API
+([PlaceholderAPI](https://github.com/Delesk1JX/TextPlaceholderAPI-Forge)) installs alongside
+this mod without conflict.
 
 ## Configuration
 
@@ -77,13 +79,34 @@ API does. The scaffolding used for that lives in `tools/`:
 | `RemapSource.java` | rewrites decompiled source from intermediary to official names |
 | `RefmapTargets.java` | turns the Fabric refmap into official-mapping mixin targets |
 | `check-mixins.ps1` | verifies every mixin target against the Minecraft jar |
+| `check-refmap-coverage.ps1` | finds mixin targets the refmap does not cover |
+| `check-srg-targets.ps1` | verifies the hand-written synthetic mixin targets |
+| `rename-package.ps1` | rewrites a package prefix across `package` and `import` lines |
 | `Rcon.java` | minimal RCON client used to smoke-test commands |
+
+### Synthetic mixin targets
+
+Three mixins target synthetic lambda methods. The Mixin annotation processor only emits refmap
+entries for members in the official-to-SRG table, which does not include synthetic methods, and
+MCPConfig renumbers them for SRG. Those targets therefore resolve in a development environment
+and then fail on a production server with `Critical injection failure ... could not find any
+targets`.
+
+They are listed by hand in `syntheticTargets` in `build.gradle` and folded into the refmap by
+the `patchRefmap` task. After a Minecraft upgrade, run both checkers and update the table:
+
+```sh
+powershell -ExecutionPolicy Bypass -File tools/check-refmap-coverage.ps1
+powershell -ExecutionPolicy Bypass -File tools/check-srg-targets.ps1
+```
+
+Because a dev run cannot catch this class of failure, verify releases against a real Forge
+server, not only `./gradlew runServer`.
 
 Forge's Mixin (0.8.5) cannot inject into interfaces, which the original relied on for
 `OutgoingChatMessage`. That part was restructured onto the concrete implementations, and
 command registration moved to Forge's `RegisterCommandsEvent`. Full details of every
 behavioural difference are in [CREDITS.md](CREDITS.md).
-
 ## Credits and licensing
 
 - **Styled Chat** — © Patbox, LGPL-3.0-only — [original project](https://github.com/Patbox/StyledChat)

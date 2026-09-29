@@ -1,6 +1,6 @@
 package eu.pb4.styledchat.mixin;
 
-import eu.pb4.placeholders.api.PlaceholderContext;
+import dev.delesk1jx.styledchat.vendor.placeholders.api.PlaceholderContext;
 import eu.pb4.styledchat.StyledChatMod;
 import eu.pb4.styledchat.StyledChatStyles;
 import eu.pb4.styledchat.StyledChatUtils;

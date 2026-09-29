@@ -1,9 +1,9 @@
 package eu.pb4.styledchat;
 
 import eu.pb4.loader.SimpleEvent;
-import eu.pb4.placeholders.api.PlaceholderContext;
-import eu.pb4.placeholders.api.node.TextNode;
-import eu.pb4.placeholders.api.parsers.TextParserV1;
+import dev.delesk1jx.styledchat.vendor.placeholders.api.PlaceholderContext;
+import dev.delesk1jx.styledchat.vendor.placeholders.api.node.TextNode;
+import dev.delesk1jx.styledchat.vendor.placeholders.api.parsers.TextParserV1;
 import net.minecraft.commands.CommandSourceStack;
 
 public class StyledChatEvents {

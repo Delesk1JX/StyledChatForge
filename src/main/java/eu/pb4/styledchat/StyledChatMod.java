@@ -2,7 +2,7 @@ package eu.pb4.styledchat;
 
 import java.util.List;
 import eu.pb4.loader.Platform;
-import eu.pb4.placeholders.api.Placeholders;
+import dev.delesk1jx.styledchat.vendor.placeholders.api.Placeholders;
 import eu.pb4.playerdata.api.PlayerDataApi;
 import eu.pb4.styledchat.config.ConfigManager;
 import eu.pb4.styledchat.other.GenericModInfo;

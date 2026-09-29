@@ -90,6 +90,72 @@ mixin {
     config 'playerdataapi.mixins.json'
 }
 
+// ------------------------------------------------------------------ refmap patching --
+// The Mixin annotation processor can only remap members that appear in the official -> SRG table.
+// Synthetic lambda methods are not in that table, and MCPConfig renumbers them for SRG, so
+// ServerPlayNetworkManagerMixin#styledChat_replaceDecorator2 gets no refmap entry and would only
+// resolve in a development environment. That failure is invisible until a production server exits
+// with "Critical injection failure ... could not find any targets".
+//
+// The entry is added here. After a Minecraft upgrade, re-derive the SRG name with
+// tools/check-srg-targets.ps1 and update the table, otherwise the mixin silently stops applying.
+def syntheticTargets = [
+        'eu/pb4/styledchat/mixin/ServerPlayNetworkManagerMixin': [
+                'lambda$handleChat$10': 'Lnet/minecraft/server/network/ServerGamePacketListenerImpl;m_244887_(Lnet/minecraft/network/protocol/game/ServerboundChatPacket;Ljava/util/Optional;)V',
+        ],
+        'eu/pb4/styledchat/mixin/commands/MeCommandMixin': [
+                'lambda$register$0': 'Lnet/minecraft/server/commands/EmoteCommands;m_244831_(Lcom/mojang/brigadier/context/CommandContext;Lnet/minecraft/network/chat/PlayerChatMessage;)V',
+        ],
+        'eu/pb4/styledchat/mixin/commands/SayCommandMixin': [
+                'lambda$register$1': 'Lnet/minecraft/server/commands/SayCommand;m_244858_(Lcom/mojang/brigadier/context/CommandContext;Lnet/minecraft/network/chat/PlayerChatMessage;)V',
+        ],
+]
+
+def refmapFile = layout.buildDirectory.file("tmp/compileJava/${mod_id}.refmap.json")
+
+def patchRefmap = tasks.register('patchRefmap') {
+    dependsOn tasks.named('compileJava')
+    // The refmap is an intermediate product of compileJava rather than a declared source, so it
+    // is not wired as a task input (it does not exist at configuration time). Depending on
+    // compileJava keeps the ordering; the file is checked before use.
+
+    doLast {
+        if (!refmapFile.get().asFile.exists()) {
+            throw new GradleException("Expected ${refmapFile.get().asFile} after compileJava; nothing to patch.")
+        }
+
+        def json = new groovy.json.JsonSlurper().parse(refmapFile.get().asFile)
+        def patched = 0
+
+        syntheticTargets.each { mixinClass, targets ->
+            targets.each { officialName, srgTarget ->
+                def section = json.mappings[mixinClass]
+                if (section == null) {
+                    section = [:]
+                    json.mappings[mixinClass] = section
+                }
+
+                if (!section.containsKey(officialName)) {
+                    section[officialName] = srgTarget
+                    patched++
+                }
+            }
+        }
+
+        if (patched > 0) {
+            def out = new groovy.json.JsonBuilder()
+            out(json)
+            refmapFile.get().asFile.setText(out.toString(), 'UTF-8')
+        }
+
+        logger.lifecycle("patchRefmap: ${patched} synthetic target(s) added to ${mod_id}.refmap.json")
+    }
+}
+
+tasks.named('jar').configure { dependsOn patchRefmap }
+// The Mixin Gradle plugin folds the refmap into the jar in its own task, so that has to wait too.
+tasks.matching { it.name == 'addMixinsToJar' }.configureEach { dependsOn patchRefmap }
+
 def refmapName = "${mod_id}.refmap.json"
 
 tasks.named('jar', Jar).configure {
